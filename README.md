@@ -34,6 +34,8 @@ These are python based automated regression tests executed when there has been a
 When the test runs (by calling the doit.bat batch file) a time stamped log is displayed as execution proceeds. This log is also dumped to a text file.
 Given time stamping is included, it is a useful tool to determine if there have been any dynamic changes in execution after a code change.
 
+YouTube video testing in execution [here](https://www.youtube.com/watch?v=MwtR3u_uS0M&t=0s)
+
 #### data
 
 These files are to be copied to the SD card and are used by the system at start up to configure the device and serve up a web page if the device cannot connect to your home network for whatever reason. 
