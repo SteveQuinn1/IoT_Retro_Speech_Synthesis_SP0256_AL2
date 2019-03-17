@@ -41,7 +41,7 @@ YouTube video testing in execution [here](https://www.youtube.com/watch?v=MwtR3u
 These files are to be copied to the SD card and are used by the system at start up to configure the device and serve up a web page if the device cannot connect to your home network for whatever reason. 
 They are also used to present the user with documentation on how to use the device once a connection has been established with the mqtt broker by entering the following url; 'SPEECHSVR.local'
 
-There are six (main) text files named 'secvals.txt', 'calvals1.txt', 'calvals2.txt', 'index.htm', 'index1.htm', 'SP0256.htm', 'mqtt.htm'
+There are seven (main) text files named 'secvals.txt', 'calvals1.txt', 'calvals2.txt', 'index.htm', 'index1.htm', 'SP0256.htm', 'mqtt.htm'
 
 ##### Configuration files
 
