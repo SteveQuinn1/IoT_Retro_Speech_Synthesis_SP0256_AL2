@@ -1,0 +1,1547 @@
+<HTML>
+<HEAD>
+<META CONTENT="text/html; charset=iso-8859-1" HTTP-EQUIV="Content-Type">
+<META CONTENT="SP0256; SPO256; Speech synthesis; data sheet;" NAME="KEYWORDS">
+<META CONTENT="Microsoft FrontPage Express 2.0" NAME="GENERATOR">
+<TITLE>SP0256 Speech Processor</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<H1 ALIGN="center"><FONT COLOR="#0000FF">SP0256</FONT></H1>
+<HR SIZE="1">
+<H2><FONT COLOR="#0000FF">SP0256 NARRATOR&trade; SPEECH PROCESSOR</FONT></H2>
+
+<P>Features</P>
+<UL>
+<LI>Natural Speech</LI>
+<LI>Stand Alone Operation with Inexpensive Support Components</LI>
+<LI>Wide Operating Voltage</LI>
+<LI>Word, Phrase, or Sentence Library, ROM Expandable</LI>
+<LI>Expandable to 491 K of ROM Directly</LI>
+<LI>Simple Interface to Most Microcomputers or Microprocessors</LI>
+<LI>Supports L.P.C. Synthesis: Formant Synthesis: Allophone Synthesis</LI>
+</UL>
+<H2><FONT COLOR="#0000FF">General Description</FONT></H2>
+
+<P>The SP0256 (Speech Processor) is a single chip N-Channel MOS LSI device
+that is able, using its stored program, to synthesize speech or complex
+sounds. The achievable output is equivalent to a flat frequency response
+ranging from 0 to 5 kHz, a dynamic range of 42dB, and a signal to noise
+ratio of approximately 35dB. </P>
+
+<P>The SP0256 incorporates four basic functions:</P>
+<UL>
+<LI>A software programmable digital filter that can be made to model a
+VOCAL TRACT.</LI>
+<LI>A 16K ROM which stores both data and Instructions (THE PROGRAM).</LI>
+<LI>A MICROCONTROLLER which controls the data flow from the ROM to the
+digital filter, the assembly of the &#147;word strings&#148; necessary for
+linking speech elements together, and the amplitude and pitch information
+to excite the digital filter.</LI>
+<LI>A PULSE WIDTH MODULATOR that creates a digital output which is
+converted to an analog signal when filtered by an external low pass filter.</LI>
+
+</UL>
+<H2><FONT COLOR="#0000FF">Allophone Based Speech Processor - SP0256-AL2</FONT></H2>
+
+
+<P>One example of a preprogrammed SP0256 is the AL2 pattern.</P>
+<H2><FONT COLOR="#0000FF">Allophone Usage with a Microprocessor</FONT></H2>
+
+<P>The SP0256-AL2 requires the use of a processor to concatenate the speech
+sounds to form words.</P>
+
+<P>The SP0256 is controlled using the address pins (A1-A8), ALD (Address
+Load), and SE (Strobe Enable). The object for controlling the chip is to
+load an address into It which contains the desired allophone. The speech
+data for the allophone set is contained within the internal 16K ROM of the
+SP0256-AL2.</P>
+
+<P>This particular application (Allophone Set) requires only six address
+Pins (A1- A6) to address all the 69 allophones plus five pauses, a total of
+64 locations. For simplicity, since only six address pins are needed to
+address the 64 locations, pins A7 and A8 can be tied low (to ground) and
+now any further references to the address bus will Include A1- A6 end A7=
+A8= 0 There are two modes available for loading an address into the chip.
+SE (Strobe Enable) controls the mode that will be used.</P>
+
+<P>Mode 0 (SE= 0) will latch is an address when any one or more of the
+address pins makes a low to high transition. For example, to load the
+address one (1), A2 to A6= 0 and A1 is pulsed high. To load the address
+twelve (12 octal), A1= A3= A5= A6= 0, A2 and A4 are pulsed high
+simultaneously. (Note that an address of zero cannot be loaded using this
+mode).</P>
+
+<P>Mode 1 (SE= 1) will latch in an address using the ALD pln. First, setup
+the desired address on the address bus (A1- A6) and low. Any address can be
+loaded using this mode, but certain setup and hold times are then pulse ALD
+required. </P>
+
+<P>Two microprocessor interface pins are available for quick loading of
+addresses. They are LRQ and SBY. LRQ (Load Request) tells the processor
+when the input buffer is full. SBY (Stand By) tells the processor that the
+chip has stopped talking and no new address has been loaded. Either
+interface pin can be used when concatenating allophones. LRQ is an active
+low signal, when LRQ goes low it is time to load a new address to the chip.
+If LRQ is high, then simply wait for It to go low before loading the
+address. SBY will stay high until an address is loaded, then it will go low
+and stay low until all the internal instructions (Speech Code) from that
+one address are completed. Once this signal goes high, It is time to load a
+new address. Since speech does not require very fast address loading, it
+would be acceptable to use SBY to interface to the processor.</P>
+
+<P>To end a word using allophones it is necessary to load a pause to
+complete the word. For example, the word &#147;TWO&#148; can be implemented
+using the following allophones, TT2- VW2- PA1. PA1 is actually not an
+allophone but a pause which is needed to end the word.</P>
+<HR SIZE="1">
+<H2><FONT COLOR="#0000FF">ALLOPHONE SPEECH SYNTHESIS</FONT></H2>
+<H3><FONT COLOR="#0000FF">Introduction</FONT></H3>
+
+<P>The allophone speech synthesis technique provides the user with the
+ability to synthesize an unlimited vocabulary at a very low bit rate.
+Fifty-nine discrete speech sounds (called allophones) are five pauses are
+stored at different addresses in the SP0256 internal ROM. Each speech sound
+was excised from a word and analyzed using linear predictive coding (LPC).
+Any English word or phrase can be created by addressing the appropriate
+combination of allophones and pauses. Since there Is a total of 64 address
+locations each requires a 6 bit address. </P>
+
+<P>Assuming that speech contains 10 to 12 sounds per second, allophone
+synthesis requires addressing less than 100 bits per second.</P>
+<H3><FONT COLOR="#0000FF">Linguistics</FONT></H3>
+
+<P>A few basic linguistic concepts will help you start your own library of
+&#147;allophone words&#148;. (See Table 1 for the General Instrument
+Allophone Dictionary). First, there is no one-to-one correspondence between
+written letters and speech sounds; secondly, speech sounds are acoustically
+different depending upon their position within a word; and lastly, the
+human ear may perceive the same acoustic signal differently in the context
+of different sounds.</P>
+
+<P>The first point compares to the problem that a child encounters when
+learning to read. Each sound in a language may be represented by more than
+one letter and, conversely each letter may represent more than one sound.
+(See the examples in Table 2.) Because of these spelling irregularities, it
+is necessary to think in terms of sounds, not letters, when using
+allophones.</P>
+
+<P>The second, and equally important, point to understand, is that the
+acoustic signal of a speech sound may differ depending upon its position
+within a word. For example, the initial K sound in coop will be
+acoustically different from the K &#146;s in keep and speak . The K &#146;s
+in coop and keep differ due to the influence of the vowels which follow
+them, and the final K in speak is usually not as loud as initial K&#146;s.</P>
+
+
+<P>Finally, a listener may identify the same acoustic signal differently
+depending on the context in which it is perceived. Don&#146;t be surprised,
+therefore, if an allophone word sounds slightly different when used in
+various phrases.</P>
+<H2><FONT COLOR="#0000FF">Phonemes Of English</FONT></H2>
+
+<P>The sounds of a language are called phonemes, and each language has a
+set which is slightly different from that of other languages. Table 3
+contains a chart of all the consonant phonemes of English, Table 4 all the
+vowel phonemes.</P>
+
+<P>Consonants are produced by creating an occlusion or constriction in the
+vocal tract which produces an aperiodic sound source. If the vocal cords
+are vibrating at the same time, as in the case of the voiced fricatives VV,
+DH, ZZ, and ZH, (See Table 5) there are two sound sources: one which is
+aperiodic and one which is periodic.</P>
+
+<P>Vowels are usually produced with a relatively open vocal tract and a
+periodic sound source provided by the vibrating vocal cords. They are
+classified according to whether the front or back of the tongue is high or
+low (See Table 4), whether they are long or short, and whether the lips are
+rounded or unrounded. In English all rounded vowels are produced in or near
+the back of the mouth (UW, UH, OW, AO, OR, AW). Speech sounds which have
+features in common behave in similar ways. For example, the voiceless stop
+consonants PP, TT, and KK (See Table 3) should be preceded by 50- 80 msec
+of silence, and the voiced stop consonants BB, DD, and GG by 10- 30 msec of
+silence.</P>
+<H2><FONT COLOR="#0000FF">Allophones</FONT></H2>
+
+<P>Phoneme is the name given to a group of similar sounds in a language.
+Recall that a phoneme is acoustically different depending upon its position
+within a word. Each of these positional variants is an allophone of the
+same phoneme. An allophone, therefore, is the manifestation of a phoneme in
+true speech signal. It is for this reason that our inventory of English
+speech sounds is called an allophone set.</P>
+<H2><FONT COLOR="#0000FF">How To Use The Allophone Set</FONT></H2>
+
+<P>(See Table 1 for instructions on how to create all the sample words
+mentioned in this section.) The allophone set (Refer to Table 5) contains
+two or three versions of some phonemes. It may be necessary to use one
+allophone of a particular phoneme for word- or- syllable- final position, A
+detailed set of guidelines for using the allophones is given in Table 5.
+Note that these are suggestions, not rules.</P>
+
+<P>For example, DD2 sounds good in initial position and DD1 sounds good in
+final position, as in &#147;daughter&#148; and &#147;collide&#148;. One of
+the differences between the initial and final versions of a consonant is
+that an initial version may be longer than the final version. Therefore, to
+create an initial SS, you can use two SSs instead of the usual single SS at
+the end of a word or syllable, as in &#147;sister&#148;. Note that this can
+be done with TH, and FF, and the inherently short vowels (to be discussed
+below), but with no other consonants. You will want to experiment with some
+consonants such as str, cl) to discover which version works best in the
+cluster. For example, KK1 sounds good before LL as in &#147;clown&#148;,
+and KK2 sounds good before WW as in &#147;square&#148;. One allophone of a
+particular phoneme may sound better before or after back vowels and another
+before or after front vowels. KK3 sounds good before UH and KK1 sounds good
+before IY, as in &#147;cookie&#148;, Some sounds (PP, BB, TT, DD, KK, GG,
+CH, and JH) require a brief duration of silence before them. For most of
+these, the silence has already been added but you may decide you want to
+add more. Therefore there are several pauses included in the allophone set
+varying from 10- 200 msec. To create the final sounds in the words
+&#147;letter&#148; and &#147;little&#148; use the allophones ER and EL.</P>
+
+<P>Remember that you must always think about how a word sounds, not how it
+is spelled. For example, the NG sound is represented by the letter N in
+&#147;uncle&#148;, And remember that some sounds may not even be
+represented in words by any letters, as the YY in &#147;computer&#148;.</P>
+
+<P>As mentioned earlier there are some vowels which can be doubled to make
+longer versions for stressed syllables.</P>
+
+<P>These are the inherently short vowels IH, EH, AE, AX, AA, and UH. For
+example, in the word &#147;extent&#148; use one EH in the first syllable,
+which is unstressed and two EHs in the second syllable which is stressed.</P>
+
+
+<P>Of the inherently long vowels there is one, UW, which has a long and
+short version.</P>
+
+<P>The short one, UW1, sounds good after YY in computer. The long version,
+UW2, sounds good in mono- syllabic words like &#147;two&#148;. Included in
+the vowel set is a group called R- coloured vowels. These are vowel + R
+combinations. For example, the AR in &#147;alarm&#148; and the OR in
+&#147;score&#148;. Of the R-coloured vowels there is one, ER, which has a
+long and short version. The short version is good for polysyllabic words
+with final ER sounds like &#147;letter&#148;, and the long version is good
+for monosyllabic words like &#147;fir&#148;. One final suggestion is that
+you may want to add a pause of 30- 50 msec between words, when creating
+sentences, and a pause of 100- 200 msec between clauses.</P>
+
+<P>Note: Every utterance must be followed by a pause in order to make the
+chip stop talking the last allophone.</P>
+<HR SIZE="1">
+<H2><FONT COLOR="#0000FF">Table 1:</FONT></H2>
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0">
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>NUMBERS: </STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>zero</TD>
+<TD>ZZ YR OW</TD>
+</TR>
+<TR>
+<TD>one, won
+</TD>
+<TD>WW SX AX NN1</TD>
+</TR>
+<TR>
+<TD>two, to, too
+</TD>
+<TD>TT2 UW2</TD>
+</TR>
+<TR>
+<TD>three</TD>
+<TD>TH RR1 IY</TD>
+</TR>
+<TR>
+<TD>four, for, fore</TD>
+<TD>FF FF OR</TD>
+</TR>
+<TR>
+<TD>five</TD>
+<TD>FF FF AY VV
+</TD>
+</TR>
+<TR>
+<TD>six</TD>
+<TD>SS SS IH IH PA3 KK2 SS</TD>
+</TR>
+<TR>
+<TD>seven</TD>
+<TD>SS SS EH EH VV IH NN1</TD>
+</TR>
+<TR>
+<TD>eight, ate
+</TD>
+<TD>EY PA3 TT2</TD>
+</TR>
+<TR>
+<TD>nine</TD>
+<TD>NN1 A A A Y NN1</TD>
+</TR>
+<TR>
+<TD>ten</TD>
+<TD>TT2 EH EH NN1</TD>
+</TR>
+<TR>
+<TD>eleven
+</TD>
+<TD>IH LL EH EH VV IH NN1</TD>
+</TR>
+<TR>
+<TD>twelve</TD>
+<TD>TT2 WH EH EH LL VV</TD>
+</TR>
+<TR>
+<TD>thirteen</TD>
+<TD>TH ER1 PA2 PA3 TT2 IY NN1</TD>
+</TR>
+<TR>
+<TD>fourteen</TD>
+<TD>FF OR PA2 PA3 TT2 IY NN1</TD>
+</TR>
+<TR>
+<TD>fifteen</TD>
+<TD>FF IH FF PA2 PA3 TT2 IY NN1</TD>
+</TR>
+<TR>
+<TD>sixteen</TD>
+<TD>SS SS IH PA3 KK2 SS PA2 PA3 TT2 IY NN1</TD>
+</TR>
+<TR>
+<TD>seventeen</TD>
+<TD>SS SS EH VV TH NN1 PA2 PA3 TT2 IY NN1</TD>
+</TR>
+<TR>
+<TD>eighteen</TD>
+<TD>EY PA2 PA3 TT2 IY NN1</TD>
+</TR>
+<TR>
+<TD>nineteen</TD>
+<TD>NN1 AY NN1 PA2 PA3 TT2 IY NN1</TD>
+</TR>
+<TR>
+<TD>twenty</TD>
+<TD>TT2 WH EH EH NN1 PA2 PA3 TT2 IY</TD>
+</TR>
+<TR>
+<TD>thirty</TD>
+<TD>TH ER2 PA2 PA3 TT2 IY</TD>
+</TR>
+<TR>
+<TD>forty</TD>
+<TD>FF OR PA3 TT2 IY</TD>
+</TR>
+<TR>
+<TD>fifty</TD>
+<TD>FF FF IH FF FF PA2 PA3 TT2 IY</TD>
+</TR>
+<TR>
+<TD>sixty</TD>
+<TD>SS SS IH PA3 KK2 SS PA2 PA3 TT2 IY</TD>
+</TR>
+<TR>
+<TD>seventy</TD>
+<TD>SS SS EH VV IH NN1 PA2 PA3 TT2 IY</TD>
+</TR>
+<TR>
+<TD>eighty</TD>
+<TD>EY PA3 TT2 IY</TD>
+</TR>
+<TR>
+<TD>ninety</TD>
+<TD>NN1 AY NN1 PA3 TT2 IY</TD>
+</TR>
+<TR>
+<TD>hundred</TD>
+<TD>HH2 AX AX NN1 PA2 DD2 RR2 IH IH PA1 DD1</TD>
+</TR>
+<TR>
+<TD>thousand</TD>
+<TD>TH AA AW ZZ TH PA1 PA1 NN1 DD1</TD>
+</TR>
+<TR>
+<TD>million</TD>
+<TD>MM IH IH LL YY1 AX NN1</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>DAY OF THE WEEK:</STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>Sunday<BR> Monday<BR> Tuesday<BR> Wednesday<BR> Thursday<BR> Friday<BR>
+Saturday</TD>
+<TD>SS SS AX AX NN1 PA2 DD2 EY<BR> MM AX AX NN1 PA2 DD2 EY<BR> TT2 UW2 ZZ
+PA2 DD2 EY<BR> WW EH EH NN1 ZZ PA2 DD2 EY<BR> TH ER2 ZZ PA2 DD2 EY<BR> FF
+RR2 AY PA2 DD2 EY<BR> SS SS AE PA3 TT2 PA2 DD2 EY</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>MONTHS:</STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>January<BR> February<BR> March<BR> April<BR> May<BR> June<BR> July<BR>
+August<BR> September<BR> October<BR> November<BR> December</TD>
+<TD>JH AE AE NN1 YY2 XR 1Y<BR> FF EH EH PA1 BR RR2 UW2 XR IY<BR> MM AR PA3 CH<BR>
+EY PA3 PP RR2 IH IH LL<BR> MM EY
+<BR> JH UW2 NN1<BR> JH UW1 LL AY<BR> AO AO PA2 GG2 AX SS PA3 TT1<BR> SS SS
+EH PA3 PP PA3 TT2 EH EH PA1 BB2 ER1<BR> AA PA2 KK2 PA3 TT2 OW PA1 BB2 ER1<BR>
+NN2 OW VV EH EH MM PA1 BB2 ER1<BR> DD2 IY SS SS EH EH MM PA1 BB2 ER1</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>LETTERS:</STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>A<BR> B<BR> C<BR> D<BR> E<BR> F<BR> G<BR> H<BR> I<BR> J<BR> K<BR> L<BR> M<BR>
+N<BR> O<BR> P<BR> Q<BR> R<BR> S<BR> T<BR> U<BR> V<BR> W<BR> X<BR> Y<BR> Z</TD>
+<TD>EY<BR> BB2 IY<BR> SS SS IY<BR> DD2 IY<BR> IY<BR> EH EH FF FF<BR> JH IY<BR>
+EY PA2 PA3 CH<BR> AA AY<BR> JH EH EY<BR> KK1 EH EY<BR> EH EH EL<BR> EH EH MM<BR>
+EH EH NNl<BR> OW<BR> PP IY<BR> KK1 YY1 UW2<BR> AR<BR> EH EH SS SS<BR> TT2 IY<BR>
+YY1 UW2<BR> VV IY<BR> DD2 AX PA2 BB2 EL YY1 UW2<BR> EH EH PA3 KK2 SS SS<BR>
+WW AY<BR> ZZ IY</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>DICTIONARY:</STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>alarm<BR> bathe<BR> bather<BR> bathing<BR> beer<BR> bread<BR> by<BR>
+</TD>
+<TD>AX LL AR MM<BR> BB2 EY DH2<BR> BB2 EY DH2 ER1<BR> BB2 EY DH2 IH NG<BR>
+BB2 YR<BR> BB1 RR2 EH EH PA1 DD1<BR> BB2 AA AY<BR>
+</TD>
+</TR>
+<TR>
+<TD>calendar<BR> clock<BR> clown
+
+<P>check<BR> checked<BR> checker<BR> checkers<BR> checking<BR> checks</P>
+
+<P>cognitive<BR> collide<BR> computer<BR> cookie</P>
+
+<P>coop<BR> correct<BR> corrected<BR> correcting<BR> corrects<BR> crown</P>
+</TD>
+<TD>KK1 AE AE LL EH NN1 PA2 DD2 ER1<BR> KK1 LL AA AA PA3 KK2<BR> KK1 LL AW
+NN1
+
+<P>CH EH EH PA3 KK2<BR> CH EH EH PA3 KK2 PA2 TT2<BR> CH EH EH PA3 KK1 ER1<BR>
+CH EH EH PA3 KK1 ER1 ZZ<BR> CH EH EH PA3 KK1 IH NG<BR> CH EH EH PA3 KK1 SS</P>
+
+
+<P>KK3 AA AA GG3 NN1 IH PA3 TT2 IH VV<BR> KK3 AX LL AY DD1<BR> KK1 AX MM
+PP1 YY1 UW1 TT2 E R<BR> KK3 UH KK1 IY</P>
+
+<P>KK3 UW2 PA3 PP<BR> KK1 ER2 EH E H PA2 KK2 PA2 TT1<BR> KK1 ER2 EH EH PA2
+KK2 PA2 TT2 IH PA2 DDl<BR> KK1 ER2 EH EH PA2 KK2 PA2 TT2 IH NG<BR> KK1 ER2
+EH E H PA2 KK2 PA2 TT1 ss<BR> KK1 RR2 AW NN1</P>
+</TD>
+</TR>
+<TR>
+<TD>date<BR> daughter<BR> day<BR> divided</TD>
+<TD>DD2 EY PA3 TT2<BR> DD2 A0 TT2 ER1<BR> DD2 EH EY<BR> DD2 IH VV AY PA2
+DD2 IH PA2 DD1</TD>
+</TR>
+<TR>
+<TD>emotional<BR> engage<BR> engagement<BR> engages<BR> engaging
+
+<P>enrage<BR> enraged<BR> enrages<BR> enraging</P>
+
+<P>escape<BR> escaped<BR> escapes<BR> escaping</P>
+
+<P>equal<BR> equals<BR> error<BR> extent</P>
+</TD>
+<TD>IY MM OW SH AX NN1 AX EL<BR> EH EH PA1 NN1 GG1 EY PA2 JH<BR> EH EH PA1
+NN1 GG1 EY PA2 JH MM EH EH NN1 PA2 PA3 TT2<BR> EH EH PA1 NN1 GG1 EY PA2 JH
+IH z z<BR> EH EH PA1 NN1 GG1 EY PA2 JH IH NG
+
+<P>EH NN1 RR1 EY PA2 JH<BR> EH NN1 RR1 EY PA2 JH PA2 DD1<BR> EH NN1 RR1 EY
+PA2 JH IH ZZ<BR> EH NN1 RR1 EY PA2 JH IH NG</P>
+
+<P>EH SS SS PA3 KK1 PA2 PA3 PP<BR> EH SS SS PA3 KK1 PA2 PA3 PP PA2 TT2
+<BR> EH SS SS PA3 KK1 PA2 PA3 PP SS<BR> EH SS SS PA3 KK1 PA2 PA3 PP IH NG</P>
+
+
+<P>IY PA2 PA3 KK3 WH AX EL<BR> IY PA2 PA3 KK3 WH AX EL Z Z<BR> EH XR OR<BR>
+EH KK1 SS TT2 EH EH NN1 TT2</P>
+</TD>
+</TR>
+<TR>
+<TD>fir<BR> freeze<BR> freezer<BR> freezers<BR> freezing<BR> frozen</TD>
+<TD>FF ER2<BR> FF FF RR1 IY Z Z<BR> FF FF RR1 IY ZZ ER1<BR> FF FF RR1 IY ZZ
+ER1 ZZ<BR> FF FF RR1 IY ZZ IH NG<BR> FF FF RR1 OW ZZ EH NN1</TD>
+</TR>
+<TR>
+<TD>gauge<BR> gauged<BR> gauger<BR> gauging</TD>
+<TD>GG1 EY PA2 JH<BR> GG1 EY PA2 JH PA2 DD1<BR> GG1 EY PA2 JH IH Z Z<BR>
+GG1 EY PA2 JH IH NG</TD>
+</TR>
+<TR>
+<TD>hello<BR> hour</TD>
+<TD>HH EH LL AX OW<BR> AW ER1</TD>
+</TR>
+<TR>
+<TD>infinitive<BR> intrigue<BR> intrigued<BR> intrigues<BR> intriguing<BR>
+investigate<BR> Investigated<BR> Investigator<BR> investigators<BR>
+investigates<BR> investigating</TD>
+<TD>IH NN1 FF FF IH IH NN1 IH PA2 PA3 TT2 IH VV<BR> IN NN1 PA3 TT2 RR2 IY
+PA1 GG3<BR> IH NN1 PA3 TT2 RR2 IY PA1 GG3 PA2 DD1<BR> IH NN1 PA3 T-l-2 RR2
+IY PA1 GG3 z z<BR> IH NN1 PA3 TT2 RR2 IY PA1 GG3 IH NG<BR> IH IH NN1 VV EH
+EH SS PA2 PA3 TT2 IH PA1 GG1 EY PA2 TT2<BR> IH IH NN1 VV EH EH SS PA2 PA3
+TT2 IH PA1 GG1 EY PA2 TT2 IH PA2 DD1<BR> IH IH NN1 VV EH EH SS PA2 PA3 TT2
+IH PA1 GG1 EY PA2 TT2 ER1<BR> IH IH NN1 VV EH EH SS PA2 PA3 TT2 IH PA1 GG1
+EY PA2 TT2 ER1 z z<BR> IH IH NN1 VV EH EH SS PA2 PA3 TT2 IH PA1 GG1 EY PA2
+TT1 SS<BR> IH IH NN1 VV EH EH SS PA2 PA3 TT2 IH PA1 GG1 EY PA2 TT2 IH NG</TD>
+</TR>
+<TR>
+<TD>key</TD>
+<TD>KK1 I Y</TD>
+</TR>
+<TR>
+<TD>legislate<BR> legislated<BR> legislates<BR> legislating<BR> legislature<BR>
+letter<BR> litter<BR> little</TD>
+<TD>LL EH EH PA2 JH JH SS SS LL EY PA2 PA3 TT2<BR> LL EH EH PA2 JH JH SS SS
+LL EY PA2 PA3 TT2 IH DD1<BR> LL EH EH PA2 JH JH SS SS LL EY PA2 PA3 TT1 SS<BR>
+LL EH EH PA2 JH JH SS SS LL EY PA2 PA3 TT2 IH NG<BR> LL EH EH PA2 JH JH SS
+SS LL EY PA2 PA3 CH ER1<BR> LL EH EH PA3 TT2 ER1
+<BR> LL IH IH PA3 TT2 ER1<BR> LL IH IH PA3 TT2 EL
+</TD>
+</TR>
+<TR>
+<TD>memory<BR> memories<BR> minute<BR> month</TD>
+<TD>MM EH EH MM ER2 IY
+<BR> MM EH EH MM ER2 IY ZZ<BR> MM 1H NN1 IH PA3 TT2<BR> MM AX NN1 TH</TD>
+</TR>
+<TR>
+<TD>nip<BR> nipped<BR> nipping<BR> nips<BR> no</TD>
+<TD>NN1 IH IH PA2 PA3 PP<BR> NN1 IH IH PA2 PA3 PP PA3 TT2<BR> NN1 IH IH PA2
+PA3 PP IH NG<BR> NN1 IH IH PA2 PA3 PP SS<BR> NN2 AX OW</TD>
+</TR>
+<TR>
+<TD>physical<BR> pin<BR> pinned<BR> pinning<BR> pins<BR> pledge<BR> pledged<BR>
+pledges<BR> pledging<BR> plus</TD>
+<TD>FF FF IH ZZ IH PA3 KK1 AX EL<BR> PP IH IH NN1<BR> PP IH IH NN1 PA2 DD1<BR>
+PP IH IH NN1 IH NG1<BR> PP IH IH NN1 ZZ<BR> PP LL EH EH PA3 JH<BR> PP LL EH
+EH PA3 JH PA2 DD1<BR> PP LL EH EH PA3 JH IH ZZ<BR> PP LL EH EH PA3 JH IH NG<BR>
+PP LL AX AX SS SS</TD>
+</TR>
+<TR>
+<TD>ray<BR> rays<BR> ready<BR> red<BR> robot<BR> robots</TD>
+<TD>RR1 EH EY<BR> RR1 EH EY ZZ<BR> RR1 EH EH PA1 DD2 IY<BR> RR1 EH FH PA1 DD1<BR>
+RR1 OW PA2 BB2 AA PA3 T T2<BR> RR1 OW PA2 BB2 AA PA3 TT1 SS</TD>
+</TR>
+<TR>
+<TD>score<BR> second<BR> sensitive<BR> sensitivity<BR> sincere<BR> sincerely<BR>
+sincerity<BR> sister<BR> speak<BR> spell<BR> spelled<BR> speller<BR> spellers<BR>
+spelling<BR> spells<BR> start<BR> started<BR> starter</TD>
+<TD>SS SS PA3 KK3 OR<BR> SS SS EH PA3 KK1 IH NN1 PA2 DD1<BR> SS SS EH EH
+NN1 SS SS IH PA2 PA3 TT2 IH VV<BR> SS SS EH EH NN1 SS SS IH PA2 PA3 TT2 IH
+VV IH PA2 PA3 TT2 IY<BR> SS SS IH IH NN1 SS SS YR<BR> SS SS IH IH NN1 SS SS
+YR LL IY<BR> SS SS IH IH NN1 SS SS EH EH RR1 IH PA2 PA3 TT2 IY<BR> SS SS IH
+IH SS PA3 TT2 ER1<BR> SS SS PA3 IY PA3 KK2<BR> SS SS PA3 PP EH EH EL<BR> SS
+SS PA3 PP EH EH EL PA3 DD1<BR> SS SS PA3 PP EH EH EL ER2<BR> SS SS PA3 PP
+EH EH EL ER2 ZZ<BR> SS SS PA3 PP EH EH EL IH NG<BR> SS SS PA3 PP EH EH EL ZZ<BR>
+SS SS PA3 TT2 AR PA3 TT2<BR> SS SS PA3 TT2 AR PA3 TT2 IH PA1 DD2
+<BR> SS SS PA3 TT2 AR PA3 TT2 ER1</TD>
+</TR>
+<TR>
+<TD>starting<BR> starts<BR> stop<BR> stopped<BR> stopper<BR> stopping<BR>
+stops<BR> subject (noun)<BR> subject (verb)<BR> sweat<BR> sweated<BR> sweater<BR>
+sweaters<BR> sweating<BR> sweats<BR> switch<BR> switched<BR> switches<BR>
+switching<BR> system<BR> systems</TD>
+<TD>SS SS PP3 TT2 AR PA3 TT2 IH NC<BR> SS SS PP3 TT2 AR PA3 TT1 SS<BR> SS
+SS PA3TT1 1AA AA PA3 PP<BR> SS SS PA3 TT1 AA AA PA3 PP PA3 TT2<BR> SS SS
+PA3 TT1 AA AA PA3 PP ER1<BR> SS SS PA3 TT1 AA AA PA3 PP IH NG<BR> SS SS PA3
+TT1 AA AA PA3 PP SS<BR> SS SS AX AX PA2 BB1 PA2 JH EH PA3 KK2 PA3 TT2
+<BR> SS SS AX PA2 BB1 PA2 JH EH EH PA3 KK2 PA3 TT2<BR> SS SS WW EH EH PA3
+TT2
+<BR> SS SS WW EH EH PA3 TT2 IH PA3 DD1<BR> SS SS WW EH EH PA3 TT2 ER1<BR>
+SS SS WW EH EH PA3 TT2 ER1 ZZ<BR> SS SS WW EH EH PA3 TT2 IH NG<BR> SS SS WW
+EH EH PA3 TT2 SS<BR> SS SS WH IH IH PA3 CH<BR> SS SS WH IH IH PA3 CH PA3 TT2<BR>
+SS SS WH IH IH PA3 CH IH ZZ2<BR> SS SS WH IH IH PA3 CH IH NG2<BR> SS SS IH
+IH SS SS PA3 TT2 EH MM<BR> SS SS IH IH SS SS PA3 TT2 EH MM Z Z
+</TD>
+</TR>
+<TR>
+<TD>talk<BR> talked<BR> talker<BR> talkers<BR> talking<BR> talks</TD>
+<TD>TT2 AO AO PA2 KK2
+<BR> TT2 AO AO PA3 KK2 PA3 TT2<BR> TT2 AO AO P A 3 KK1 ER1<BR> TT2 AO AO
+PA3 KK1 ER1 ZZ<BR> TT2 AO AO PA3 KK1 IH NG<BR> TT2 AO AO PA2 KK2 SS</TD>
+</TR>
+<TR>
+<TD>thread<BR> threaded</TD>
+<TD>TH RR1 EH EH PA2 DD1<BR> TH RR1 EH EH PA2 DD2 IH PA2 DD1</TD>
+</TR>
+<TR>
+<TD>threader<BR> threaders<BR> threading<BR> threads<BR> then<BR> time<BR>
+times
+</TD>
+<TD>TH RR1 EH EH PA2 DD2 ER1<BR> TH RR1 EH EH PA2 DD2 ER1 ZZ<BR> TH RR1 EH
+EH PA2 DD2 IH NG<BR> TH RR1 EH EH PA2 DD2 ZZ
+<BR> DH1 EH EH NN1<BR> TT2 AA AY MM<BR> TT2 AA AY MM ZZ</TD>
+</TR>
+<TR>
+<TD>uncle</TD>
+<TD>AX NG PA3 KK3 EL</TD>
+</TR>
+<TR>
+<TD>whale<BR> whaler<BR> whalers<BR> whales<BR> whaling</TD>
+<TD>WW EY EL<BR> WW EY LL ER1<BR> WW EY LL ER1 ZZ<BR> WW EY EL Z Z<BR> WW
+EY LL TH NG</TD>
+</TR>
+<TR>
+<TD>year<BR> yes</TD>
+<TD>YY2 YR<BR> YY2 EH EH SS SS</TD>
+</TR>
+</TABLE>
+<HR SIZE="1">
+<H2><FONT COLOR="#0000FF">TABLE 2 - EXAMPLES OF SPELLING IRREGULARITIES</FONT></H2>
+
+<TABLE BORDER="1" CELLPADDING="7" CELLSPACING="0">
+<TR>
+<TD>&nbsp;</TD>
+<TD>Same sound
+<BR> represented by<BR> different letters</TD>
+<TD>Different sounds
+<BR> represented by
+<BR> the same letters
+</TD>
+</TR>
+<TR>
+<TD>Vowels</TD>
+<TD>mEAt<BR> fEEt<BR> pEte<BR> pEOple<BR> pennY
+</TD>
+<TD>vEIn<BR> forEIgn<BR> dEIsm<BR> dEIcer<BR> gEIsha</TD>
+</TR>
+<TR>
+<TD>Consonants</TD>
+<TD>SHip<BR> tenSIon<BR> preCIous<BR> naTIon</TD>
+<TD>althouGH<BR> GHastly<BR> COUGH<BR> hiccouGH</TD>
+</TR>
+</TABLE>
+<HR SIZE="1">
+<H2><FONT COLOR="#0000FF">TABLE 3 - CONSONANT PHONEMES OF ENGLISH**</FONT></H2>
+
+<TABLE BORDER="1" CELLPADDING="5" CELLSPACING="0">
+<TR>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>LABIAL</TD>
+<TD>LABIO-<BR> DENTAL</TD>
+<TD>INTER-<BR> DENTAL</TD>
+<TD>ALVEOLAR</TD>
+<TD>PALATAL</TD>
+<TD>VELAR</TD>
+<TD>GLOTTAL</TD>
+</TR>
+<TR>
+<TD ROWSPAN="2">Stops:</TD>
+<TD>Voiced</TD>
+<TD>PP</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>TT</TD>
+<TD>&nbsp;</TD>
+<TD>KK</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR>
+<TD>Voiceless</TD>
+<TD>BB</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>DD</TD>
+<TD>&nbsp;</TD>
+<TD>GG</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR>
+<TD ROWSPAN="2">Fricatives:</TD>
+<TD>Voiced</TD>
+<TD>WH</TD>
+<TD>FF</TD>
+<TD>TH</TD>
+<TD>SS</TD>
+<TD>SH</TD>
+<TD>&nbsp;</TD>
+<TD>HH</TD>
+</TR>
+<TR>
+<TD>Voiceless</TD>
+<TD>&nbsp;</TD>
+<TD>VV</TD>
+<TD>DH</TD>
+<TD>ZZ</TD>
+<TD>ZH*</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR>
+<TD ROWSPAN="2">Affricates:</TD>
+<TD>Voiceless</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>CH</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR>
+<TD>Voiced</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD>JH</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR>
+<TD>Nasals</TD>
+<TD>Voiced</TD>
+<TD>&nbsp;</TD>
+<TD>MM</TD>
+<TD>&nbsp;</TD>
+<TD>NN</TD>
+<TD>&nbsp;</TD>
+<TD>NG*</TD>
+<TD>&nbsp;</TD>
+</TR>
+<TR>
+<TD>Resonants</TD>
+<TD>Voiced</TD>
+<TD>&nbsp;</TD>
+<TD>WW</TD>
+<TD>&nbsp;</TD>
+<TD>RR,LL</TD>
+<TD>YY</TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>*These do not occur in word-initial position in English.</P>
+<TABLE BORDER="1" CELLPADDING="5" CELLSPACING="0">
+<TR>
+<TD>Labial :</TD>
+<TD>Upper and Lower Lips Touch or Approximate</TD>
+</TR>
+<TR>
+<TD>Palatal:</TD>
+<TD>Body of Tongue Approximates Palate (roof of mouth)</TD>
+</TR>
+<TR>
+<TD>Labio-Dental:</TD>
+<TD>Upper Teeth and Lower Lip Touch</TD>
+</TR>
+<TR>
+<TD>Velar:</TD>
+<TD>Body of Tongue Touches Velum (posterior portion of roof of mouth)</TD>
+</TR>
+<TR>
+<TD>Inter-Dental:
+</TD>
+<TD>Tongue Between Teeth
+</TD>
+</TR>
+<TR>
+<TD>Glottal:</TD>
+<TD>Glottis (opening between vocal chords)</TD>
+</TR>
+<TR>
+<TD>Alveolar:</TD>
+<TD>Tip of Tongue Touches or Approximates Alveolar Ridge (just behind upper
+teeth)</TD>
+</TR>
+</TABLE>
+<HR SIZE="1">
+<H2><FONT COLOR="#0000FF">TABLE 4 - VOWEL PHONEMES OF ENGLISH</FONT></H2>
+<TABLE BORDER="1" CELLPADDING="7" CELLSPACING="0">
+<TR>
+<TD>&nbsp;</TD>
+<TD>FRONT</TD>
+<TD>CENTRAL</TD>
+<TD>BACK</TD>
+</TR>
+<TR>
+<TD VALIGN="top">High</TD>
+<TD VALIGN="top">YR<BR> IY<BR> IH*</TD>
+<TD VALIGN="top">&nbsp;</TD>
+<TD VALIGN="top">UW#<BR> UH*#</TD>
+</TR>
+<TR>
+<TD VALIGN="top">Mid</TD>
+<TD VALIGN="top">EY<BR> EH*<BR> XR</TD>
+<TD VALIGN="top">ER<BR> AX*</TD>
+<TD VALIGN="top">OW#<BR> OY#</TD>
+</TR>
+<TR>
+<TD VALIGN="top">Low</TD>
+<TD VALIGN="top">AE*</TD>
+<TD VALIGN="top">AW#<BR> AY<BR> AR<BR> AA*</TD>
+<TD VALIGN="top">AO*#<BR> OR#</TD>
+</TR>
+</TABLE>
+
+<P>* Short Vowels<BR> # Rounded Vowels</P>
+<HR SIZE="1">
+<H2><FONT COLOR="#0000FF">TABLE 5 - GUIDELINES FOR USING THE ALLOPHONES</FONT></H2>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0">
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Silence</STRONG></FONT>
+</TD>
+</TR>
+<TR>
+<TD>PA1 ( 10 ms)</TD>
+<TD>before BB, DD, GG, and JH
+</TD>
+</TR>
+<TR>
+<TD>PA2 ( 30 ms)</TD>
+<TD>before BB, DD, GG, and JH
+</TD>
+</TR>
+<TR>
+<TD>PA3 ( 50 ms)</TD>
+<TD>before PP, TT, KK, and CH, and between words
+</TD>
+</TR>
+<TR>
+<TD>PA4 (100 ms)</TD>
+<TD>between clauses and sentences
+</TD>
+</TR>
+<TR>
+<TD>PA5 (200 ms)</TD>
+<TD>between clauses and sentences
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Short Vowels </STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>*/IH/</TD>
+<TD>sitting, stranded
+</TD>
+</TR>
+<TR>
+<TD>*/EH/</TD>
+<TD>extent, gentlemen
+</TD>
+</TR>
+<TR>
+<TD>*/AE/</TD>
+<TD>extract, acting
+</TD>
+</TR>
+<TR>
+<TD>*/UH/</TD>
+<TD>cookie, full
+</TD>
+</TR>
+<TR>
+<TD>*/AO/</TD>
+<TD>talking, song
+</TD>
+</TR>
+<TR>
+<TD>*/AX/</TD>
+<TD>lapel, instruct
+</TD>
+</TR>
+<TR>
+<TD>*/AA/</TD>
+<TD>pottery, cotton
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Long Vowels </STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>/IY/</TD>
+<TD>treat, people, penny
+</TD>
+</TR>
+<TR>
+<TD>/EY/</TD>
+<TD>great, statement, tray
+</TD>
+</TR>
+<TR>
+<TD>/AY/</TD>
+<TD>kite, sky, mighty
+</TD>
+</TR>
+<TR>
+<TD>/OY/</TD>
+<TD>noise, toy, voice
+</TD>
+</TR>
+<TR>
+<TD>/UW1/</TD>
+<TD>after clusters with YY: computer
+</TD>
+</TR>
+<TR>
+<TD>/UW2/</TD>
+<TD>in monosyllabic words: two, food
+</TD>
+</TR>
+<TR>
+<TD>/OW/</TD>
+<TD>zone, close, snow
+</TD>
+</TR>
+<TR>
+<TD>/AW/</TD>
+<TD>sound, mouse, down
+</TD>
+</TR>
+<TR>
+<TD>/EL/</TD>
+<TD>little, angle, gentlemen
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>R-Coloured Vowels </STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>/ER1/</TD>
+<TD>letter, furniture, interrupt
+</TD>
+</TR>
+<TR>
+<TD>/ER2/</TD>
+<TD>monosyllables: bird, fern, burn
+</TD>
+</TR>
+<TR>
+<TD>/OR/</TD>
+<TD>fortune, adorn, store
+</TD>
+</TR>
+<TR>
+<TD>/AR/</TD>
+<TD>farm, alarm, garment
+</TD>
+</TR>
+<TR>
+<TD>/YR/</TD>
+<TD>hear, earring, irresponsible
+</TD>
+</TR>
+<TR>
+<TD>/XR/</TD>
+<TD>hair, declare, stare
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Resonants</STRONG></FONT>
+</TD>
+</TR>
+<TR>
+<TD>/WW/</TD>
+<TD>we, warrant, linguist
+</TD>
+</TR>
+<TR>
+<TD>/RR1/</TD>
+<TD>initial position: read, write, x-ray
+</TD>
+</TR>
+<TR>
+<TD>/RR2/</TD>
+<TD>initial clusters: brown, crane, grease
+</TD>
+</TR>
+<TR>
+<TD>/LL/</TD>
+<TD>like, hello, steel
+</TD>
+</TR>
+<TR>
+<TD>/YY1/</TD>
+<TD>clusters: cute, beauty, computer
+</TD>
+</TR>
+<TR>
+<TD>/YY2/</TD>
+<TD>initial position: yes, yarn, yo-yo
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Voiced Fricatives </STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>/VV/</TD>
+<TD>vest, prove, even
+</TD>
+</TR>
+<TR>
+<TD>/DH1/</TD>
+<TD>word-initial position: this, then, they
+</TD>
+</TR>
+<TR>
+<TD>/DH2/</TD>
+<TD>word-final and between vowels: bathe, bathing
+</TD>
+</TR>
+<TR>
+<TD>/ZZ/</TD>
+<TD>zoo, phase
+</TD>
+</TR>
+<TR>
+<TD>/ZH/</TD>
+<TD>beige, pleasure
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Voiceless Fricatives </STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>*/FF/ -)
+</TD>
+<TD ROWSPAN="3">These may be doubled for initial position and used singly
+in final position</TD>
+</TR>
+<TR>
+<TD>*/TH/ -)
+</TD>
+</TR>
+<TR>
+<TD>*/SS/ -)
+</TD>
+</TR>
+<TR>
+<TD>/SH/</TD>
+<TD>shirt, leash, nation
+</TD>
+</TR>
+<TR>
+<TD>/HH1/</TD>
+<TD>before front vowels: YR, IY, IH, EY, EH, XR, AE
+</TD>
+</TR>
+<TR>
+<TD>/HH2/</TD>
+<TD>before back vowels: UW, UH, OW, OY, AO, OR, AR
+</TD>
+</TR>
+<TR>
+<TD>/WH/</TD>
+<TD>white, whim, twenty
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Voiced Stops </STRONG></FONT></TD>
+</TR>
+<TR>
+<TD>/BB1/</TD>
+<TD>final position: rib; between vowels: fibber, in clusters: bleed, brown
+</TD>
+</TR>
+<TR>
+<TD>/BB2/</TD>
+<TD>initial position before a vowel: beast
+</TD>
+</TR>
+<TR>
+<TD>/DD1/</TD>
+<TD>final position: played, end
+</TD>
+</TR>
+<TR>
+<TD>/DD2/</TD>
+<TD>initial position: down; clusters: drain
+</TD>
+</TR>
+<TR>
+<TD>/GG1/</TD>
+<TD>before high front vowels: YR, IY, IH, EY, EH, XR
+</TD>
+</TR>
+<TR>
+<TD>/GG2/</TD>
+<TD>before high back vowels: UW, UH, OW, OY, AX; and clusters: green, glue
+</TD>
+</TR>
+<TR>
+<TD>/GG3/</TD>
+<TD>before low vowels: AE, AW, AY, AR, AA, AO, OR, ER; and medial clusters:
+anger; and final position: peg
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Voiceless Stops</STRONG>
+</FONT></TD>
+</TR>
+<TR>
+<TD>/PP/</TD>
+<TD>pleasure, ample, trip
+</TD>
+</TR>
+<TR>
+<TD>/TT1/</TD>
+<TD>final clusters before SS: tests its
+</TD>
+</TR>
+<TR>
+<TD>/TT2/</TD>
+<TD>all other positions: test, street
+</TD>
+</TR>
+<TR>
+<TD>/KK1/</TD>
+<TD>before front vowels: YR, IY, IH, EY, EH, XR, AY, AE, ER, AX; initial
+clusters: cute, clown, scream
+</TD>
+</TR>
+<TR>
+<TD>/KK2/</TD>
+<TD>final position: speak; final clusters: task
+</TD>
+</TR>
+<TR>
+<TD>/KK3/</TD>
+<TD>before back vowels: UW, UH, OW, OY, OR, AR, AO; initial clusters:
+crane, quick, clown, scream
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Affricates</STRONG></FONT>
+</TD>
+</TR>
+<TR>
+<TD>/CH/</TD>
+<TD>church, feature
+</TD>
+</TR>
+<TR>
+<TD>/JH/</TD>
+<TD>judge, injure
+</TD>
+</TR>
+<TR>
+<TD COLSPAN="2"><FONT COLOR="#0000FF"><STRONG>Nasal</STRONG></FONT>
+</TD>
+</TR>
+<TR>
+<TD>/MM/</TD>
+<TD>milk, alarm, ample
+</TD>
+</TR>
+<TR>
+<TD>/NN1/</TD>
+<TD>before front and central vowels: YR, IY, IH, EY, EH, XR, AE, ER, AX,
+AW, AY, UW; final clusters: earn
+</TD>
+</TR>
+<TR>
+<TD>/NN2/</TD>
+<TD>before back vowels: UH, OW, OY, OR, AR, AA
+</TD>
+</TR>
+<TR>
+<TD>/NG/</TD>
+<TD>string, anger
+</TD>
+</TR>
+</TABLE>
+
+<P>* These allophones can be doubled.</P>
+<HR SIZE="1">
+<H2><FONT COLOR="#0000FF">TABLE 6 - ALLOPHONE ADDRESS TABLE</FONT></H2>
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0">
+<TR>
+<TD COLSPAN="1">ADDRESS</TD>
+<TD ROWSPAN="2">ALLO-<BR> PHONE</TD>
+<TD ROWSPAN="2">SAMPLE
+<BR> WORD</TD>
+<TD ALIGN="right" ROWSPAN="2">DURATION<BR> / MS</TD>
+</TR>
+<TR>
+<TD>HEX</TD>
+</TR>
+<TR>
+<TD>00</TD>
+<TD>PA1</TD>
+<TD>PAUSE</TD>
+<TD ALIGN="right">10</TD>
+</TR>
+<TR>
+<TD>01</TD>
+<TD>PA2</TD>
+<TD>PAUSE</TD>
+<TD ALIGN="right">30</TD>
+</TR>
+<TR>
+<TD>02</TD>
+<TD>PA3</TD>
+<TD>PAUSE</TD>
+<TD ALIGN="right">50</TD>
+</TR>
+<TR>
+<TD>03</TD>
+<TD>PA4</TD>
+<TD>PAUSE</TD>
+<TD ALIGN="right">100</TD>
+</TR>
+<TR>
+<TD>04</TD>
+<TD>PA5</TD>
+<TD>PAUSE</TD>
+<TD ALIGN="right">200</TD>
+</TR>
+<TR>
+<TD>05</TD>
+<TD>/OY/</TD>
+<TD>BOY</TD>
+<TD ALIGN="right">420</TD>
+</TR>
+<TR>
+<TD>06</TD>
+<TD>/AY/</TD>
+<TD>Sky</TD>
+<TD ALIGN="right">260</TD>
+</TR>
+<TR>
+<TD>07</TD>
+<TD>/EH/</TD>
+<TD>End</TD>
+<TD ALIGN="right">70</TD>
+</TR>
+<TR>
+<TD>08</TD>
+<TD>/KK3/</TD>
+<TD>Comb</TD>
+<TD ALIGN="right">120</TD>
+</TR>
+<TR>
+<TD>09</TD>
+<TD>/PP/</TD>
+<TD>Pow</TD>
+<TD ALIGN="right">210</TD>
+</TR>
+<TR>
+<TD>0A</TD>
+<TD>/JH/</TD>
+<TD>Dodge</TD>
+<TD ALIGN="right">140</TD>
+</TR>
+<TR>
+<TD>0B</TD>
+<TD>/NN1/</TD>
+<TD>Thin</TD>
+<TD ALIGN="right">140</TD>
+</TR>
+<TR>
+<TD>0C</TD>
+<TD>/IH/</TD>
+<TD>Sit</TD>
+<TD ALIGN="right">70</TD>
+</TR>
+<TR>
+<TD>0D</TD>
+<TD>/TT2/</TD>
+<TD>To</TD>
+<TD ALIGN="right">140</TD>
+</TR>
+<TR>
+<TD>0E</TD>
+<TD>/RR1/</TD>
+<TD>Rural</TD>
+<TD ALIGN="right">170</TD>
+</TR>
+<TR>
+<TD>0F</TD>
+<TD>/AX/</TD>
+<TD>Succeed</TD>
+<TD ALIGN="right">70</TD>
+</TR>
+<TR>
+<TD>10</TD>
+<TD>/MM/</TD>
+<TD>Milk</TD>
+<TD ALIGN="right">180</TD>
+</TR>
+<TR>
+<TD>11</TD>
+<TD>/TT1/</TD>
+<TD>Part</TD>
+<TD ALIGN="right">100</TD>
+</TR>
+<TR>
+<TD>12</TD>
+<TD>/DH1/</TD>
+<TD>They</TD>
+<TD ALIGN="right">290</TD>
+</TR>
+<TR>
+<TD>13</TD>
+<TD>/IY/</TD>
+<TD>See</TD>
+<TD ALIGN="right">250</TD>
+</TR>
+<TR>
+<TD>14</TD>
+<TD>/EY/</TD>
+<TD>Beige</TD>
+<TD ALIGN="right">280</TD>
+</TR>
+<TR>
+<TD>15</TD>
+<TD>/DD1/</TD>
+<TD>Could</TD>
+<TD ALIGN="right">70</TD>
+</TR>
+<TR>
+<TD>16</TD>
+<TD>/UW1/</TD>
+<TD>To</TD>
+<TD ALIGN="right">100</TD>
+</TR>
+<TR>
+<TD>17</TD>
+<TD>/AO/</TD>
+<TD>Aught</TD>
+<TD ALIGN="right">100</TD>
+</TR>
+<TR>
+<TD>18</TD>
+<TD>/AA/</TD>
+<TD>Hot</TD>
+<TD ALIGN="right">100</TD>
+</TR>
+<TR>
+<TD>19</TD>
+<TD>/YY2/</TD>
+<TD>Yes</TD>
+<TD ALIGN="right">180</TD>
+</TR>
+<TR>
+<TD>1A</TD>
+<TD>/AE/</TD>
+<TD>Hat</TD>
+<TD ALIGN="right">120</TD>
+</TR>
+<TR>
+<TD>1B</TD>
+<TD>/HH1/</TD>
+<TD>He</TD>
+<TD ALIGN="right">130</TD>
+</TR>
+<TR>
+<TD>1C</TD>
+<TD>/BB1/</TD>
+<TD>Business</TD>
+<TD ALIGN="right">80</TD>
+</TR>
+<TR>
+<TD>1D</TD>
+<TD>/TH/</TD>
+<TD>Thin</TD>
+<TD ALIGN="right">180</TD>
+</TR>
+<TR>
+<TD>1E</TD>
+<TD>/UH/</TD>
+<TD>Book</TD>
+<TD ALIGN="right">100</TD>
+</TR>
+<TR>
+<TD>1F</TD>
+<TD>/UW2/</TD>
+<TD>Food</TD>
+<TD ALIGN="right">260</TD>
+</TR>
+<TR>
+<TD>20</TD>
+<TD>/AW/</TD>
+<TD>Out</TD>
+<TD ALIGN="right">370</TD>
+</TR>
+<TR>
+<TD>21</TD>
+<TD>/DD2/</TD>
+<TD>Do</TD>
+<TD ALIGN="right">160</TD>
+</TR>
+<TR>
+<TD>22</TD>
+<TD>/GG3/</TD>
+<TD>Wig</TD>
+<TD ALIGN="right">140</TD>
+</TR>
+<TR>
+<TD>23</TD>
+<TD>/VV/</TD>
+<TD>Vest</TD>
+<TD ALIGN="right">190</TD>
+</TR>
+<TR>
+<TD>24</TD>
+<TD>/GG1/</TD>
+<TD>Got</TD>
+<TD ALIGN="right">80</TD>
+</TR>
+<TR>
+<TD>25</TD>
+<TD>/SH/</TD>
+<TD>Ship</TD>
+<TD ALIGN="right">160</TD>
+</TR>
+<TR>
+<TD>26</TD>
+<TD>/ZH/</TD>
+<TD>Azure</TD>
+<TD ALIGN="right">190</TD>
+</TR>
+<TR>
+<TD>27</TD>
+<TD>/RR2/</TD>
+<TD>Brain</TD>
+<TD ALIGN="right">120</TD>
+</TR>
+<TR>
+<TD>28</TD>
+<TD>/FF/</TD>
+<TD>Food</TD>
+<TD ALIGN="right">150</TD>
+</TR>
+<TR>
+<TD>29</TD>
+<TD>/KK2/</TD>
+<TD>Sky</TD>
+<TD ALIGN="right">190</TD>
+</TR>
+<TR>
+<TD>2A</TD>
+<TD>/KK1/</TD>
+<TD>Can't</TD>
+<TD ALIGN="right">160</TD>
+</TR>
+<TR>
+<TD>2B</TD>
+<TD>/ZZ/</TD>
+<TD>Zoo</TD>
+<TD ALIGN="right">210</TD>
+</TR>
+<TR>
+<TD>2C</TD>
+<TD>/NG/</TD>
+<TD>Anchor</TD>
+<TD ALIGN="right">220</TD>
+</TR>
+<TR>
+<TD>2D</TD>
+<TD>/LL/</TD>
+<TD>Lake</TD>
+<TD ALIGN="right">110</TD>
+</TR>
+<TR>
+<TD>2E</TD>
+<TD>/WW/</TD>
+<TD>Wool</TD>
+<TD ALIGN="right">180</TD>
+</TR>
+<TR>
+<TD>2F</TD>
+<TD>/XR/</TD>
+<TD>Repair</TD>
+<TD ALIGN="right">360</TD>
+</TR>
+<TR>
+<TD>30</TD>
+<TD>/WH/</TD>
+<TD>Whig</TD>
+<TD ALIGN="right">200</TD>
+</TR>
+<TR>
+<TD>31</TD>
+<TD>/YY1/</TD>
+<TD>Yes</TD>
+<TD ALIGN="right">130</TD>
+</TR>
+<TR>
+<TD>32</TD>
+<TD>/CH/</TD>
+<TD>Church</TD>
+<TD ALIGN="right">190</TD>
+</TR>
+<TR>
+<TD>33</TD>
+<TD>/ER1/</TD>
+<TD>Fir</TD>
+<TD ALIGN="right">160</TD>
+</TR>
+<TR>
+<TD>34</TD>
+<TD>/ER2/</TD>
+<TD>Fir</TD>
+<TD ALIGN="right">300</TD>
+</TR>
+<TR>
+<TD>35</TD>
+<TD>/OW/</TD>
+<TD>Beau</TD>
+<TD ALIGN="right">240</TD>
+</TR>
+<TR>
+<TD>36</TD>
+<TD>/DH2/</TD>
+<TD>They</TD>
+<TD ALIGN="right">240</TD>
+</TR>
+<TR>
+<TD>37</TD>
+<TD>/SS/</TD>
+<TD>Vest</TD>
+<TD ALIGN="right">90</TD>
+</TR>
+<TR>
+<TD>38</TD>
+<TD>/NN2/</TD>
+<TD>No</TD>
+<TD ALIGN="right">190</TD>
+</TR>
+<TR>
+<TD>39</TD>
+<TD>/HH2/</TD>
+<TD>Hoe</TD>
+<TD ALIGN="right">180</TD>
+</TR>
+<TR>
+<TD>3A</TD>
+<TD>/OR/</TD>
+<TD>Store</TD>
+<TD ALIGN="right">330</TD>
+</TR>
+<TR>
+<TD>3B</TD>
+<TD>/AR/</TD>
+<TD>Alarm</TD>
+<TD ALIGN="right">290</TD>
+</TR>
+<TR>
+<TD>3C</TD>
+<TD>/YR/</TD>
+<TD>Clear</TD>
+<TD ALIGN="right">350</TD>
+</TR>
+<TR>
+<TD>3D</TD>
+<TD>/GG2/</TD>
+<TD>Guest</TD>
+<TD ALIGN="right">40</TD>
+</TR>
+<TR>
+<TD>3E</TD>
+<TD>/EL/</TD>
+<TD>Saddle</TD>
+<TD ALIGN="right">190</TD>
+</TR>
+<TR>
+<TD>3F</TD>
+<TD>/BB2/</TD>
+<TD>Business</TD>
+<TD ALIGN="right">50</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

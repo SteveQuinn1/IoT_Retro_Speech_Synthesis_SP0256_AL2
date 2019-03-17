@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+	<head>
+		<link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+		<link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+		<link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+		<link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/manifest.json">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+		<meta name="theme-color" content="#ffffff">
+		<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+		<title>Speech Synth Config Home Page</title>
+		<script language="JavaScript">
+			var	xmlHttp;
+			var ObjArray = new Array;
+
+			function GetXmlHttpObject(handler)
+			{
+				var objXmlHttp = null;
+
+				if(navigator.userAgent.indexOf("MSIE")>=0)
+				{
+					var ClassName = "Msxml2.XMLHTTP";
+					if(navigator.appVersion.indexOf("MSIE 5.5")>=0)
+					{
+						ClassName = "Microsoft.XMLHTTP";
+					}
+					try
+					{
+						objXmlHttp = new ActiveXObject(ClassName);
+						objXmlHttp.onreadystatechange = handler;
+						return objXmlHttp;
+					}
+					catch(e)
+					{
+						alert("Error: ActiveX scripting may be disabled.");
+						return;
+					}
+				}
+				else
+				{
+					try
+					{
+						objXmlHttp = new XMLHttpRequest();
+						objXmlHttp.onload = handler;
+						objXmlHttp.onerror = handler;
+						return objXmlHttp;
+					}
+					catch(e)
+					{
+						alert("Error: Browser may not be supported or browser security restrictions are too high.  XMLHttpRequest() support is required.");
+					}
+				}
+			}
+
+			function StateChanged()
+			{
+				if(xmlHttp.readyState == 4 || xmlHttp.readyState == "complete")
+				{
+					document.getElementById("txtAutoUpdateStatus").innerHTML=xmlHttp.responseText;
+					xmlHttp = null;
+					UpdateStatus();
+				}
+			}
+
+			function UpdateStatus()
+			{
+				xmlHttp = GetXmlHttpObject(StateChanged);
+				xmlHttp.open("GET", "Status.cgi" , true);
+				xmlHttp.send(null);
+			}
+
+			function GetServerFile(FileName, AssignTo)
+			{
+				var NiftyObj = new Object();
+				NiftyObj.XMLDevice = new GetXmlHttpObject(StateChanged2);
+				NiftyObj.XMLDevice.open("GET", FileName, true);
+				NiftyObj.XMLDevice.send(null);
+				NiftyObj.Text = AssignTo;
+				ObjArray.push(NiftyObj);
+			}
+
+			function StateChanged2()
+			{
+				for(i in ObjArray)
+				{
+					if(ObjArray[i].XMLDevice.readyState == 4 || ObjArray[i].XMLDevice.readyState == "complete")
+					{
+						if(ObjArray[i].Text != "")
+						{
+							document.getElementById(ObjArray[i].Text).innerHTML=ObjArray[i].XMLDevice.responseText;
+						}
+						if(ObjArray[i].Text == "txtAutoUpdateStatus")
+						{
+							GetServerFile("Status.cgi", "txtAutoUpdateStatus");
+						}
+						delete ObjArray[i].XMLDevice;
+						delete ObjArray[i];
+					}
+				}
+			}
+		</script>
+	</head>
+	<body bgcolor="white">
+		<form action="0" method="GET">
+			<p><font face="Helvetica, Arial, sans-serif" size="5" color="#3366ff"> <b> Speech Synth Configuration Home Page </b> </font></p>
+			<p><font face="Helvetica, Arial, sans-serif">Enter MQTT Broker IP Address. In dotted decimal form AAA.BBB.CCC.DDD<br>For example; 192.168.1.44</font></p>
+			<p><input type="text" name="MQTTBrokerIPAddress" value="192.168.1.44"/></p>
+			<p><font face="Helvetica, Arial, sans-serif">Enter MQTT Broker Port. In Integer form.<br>For example (the default Mosquitto Broker port is); 1883</font></p>
+			<p><input type="text" name="MQTTBrokerPort" value="1883"/></p>
+			<p><font face="Helvetica, Arial, sans-serif">Enter MQTT Broker Connection Attempts. In Integer form.<br>For example; 0</font></p>
+			<p><font face="Helvetica, Arial, sans-serif">Special Case 0 = Always try to connect</font></p>
+			<p><input type="text" name="MQTTBrokerConnectionAttempts" value="0"/></p>
+			<p><font face="Helvetica, Arial, sans-serif">Network SSID. In free form text.<br>For example; IOTNET</font></p>
+			<p><input type="text" name="NetworkSSID" value="IOTNET"/></p>
+			<p><font face="Helvetica, Arial, sans-serif">Network Password. In free form text.<br>For example; password</font></p>
+			<p><input type="password" name="NetworkPassword" value="PASSWORD"/></p>
+			<p><font face="Helvetica, Arial, sans-serif">Enter Network Connection Attempts. In Integer form.<br>For example; 10</font></p>
+			<p><input type="text" name="NetworkConnectionAttempts" value="10"/></p>
+			<br>
+			<p><input type="submit" value="Upload New Security Parameters"/></p>
+		</form>
+	</body>
+</html>

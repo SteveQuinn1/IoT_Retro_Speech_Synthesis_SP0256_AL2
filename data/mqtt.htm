@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+      charset=windows-1252">
+    <title>System Details </title>
+  </head>
+  <body>
+    <font face="Arial"> <font size="4"> </font></font><font
+      face="Arial"><b><big><big><u>MQTT Topics </u></big></big><br>
+        <br>
+        <big>Software Version</big></b><b><br>
+      </b>Topic to publish to request for software version of this
+      device<br>
+      Topic : WFD/SpeechTH/SwVer/Command<br>
+      Payload : Nothing<br>
+      <br>
+      Topic to subscribe to, to receive for software version of this
+      device<br>
+      Topic : WFD/SpeechTH/SwVer/Confirm<br>
+      Payload : Generic Device, MAC Addr, Filename.ino<br>
+      <br>
+    </font><font face="Arial"><font face="Arial"><b><big>WiFi Status</big></b><b><br>
+        </b>Topic to publish to request for WiFi RSSI Level of this
+        device<br>
+        Topic : WFD/SpeechTH/1/RSSILev<br>
+        Payload : Nothing<br>
+      </font></font><br>
+    <font face="Arial"><font face="Arial"> Topic to subscribe to, to
+        receive for software version of this device<br>
+        Topic : WFD/SpeechTH/1/RSSILev/Confirm<br>
+        Payload : dBm of received signal strength<br>
+      </font><br>
+      <big><b>LED Control</b></big><br>
+      Topic to publish to for the <font color="#ff0000">red </font>led
+      control signal<br>
+      Topic : WFD/SpeechTH/1/RedLed/Command<br>
+      Payload : <font color="#ff0000">0 = Led Off, 1 = Led On</font><br>
+      <br>
+      Topic to publish to for the <font color="#3366ff">blue </font>led
+
+
+
+
+      control signal<br>
+      Topic : WFD/SpeechTH/1/BlueLed/Command<br>
+      Payload : <font color="#3366ff">0 = Led Off, 1 = Led On</font><br>
+      <br>
+      Topic to subscribe to, to receive confirmation of Red/Blue Led
+      control<br>
+      Topic : WFD/SpeechTH/1/Led/Confirm<br>
+      Payload : 0 = Led Off, <font color="#ff0000">1 = Red Led On</font>,
+      <font color="#3366ff">2 = Blue Led On</font>, 5 = Error<br>
+      <big><br>
+        <b>Hex Phonemes Command</b></big><b><br>
+      </b>Topic to publish Hex Phonemes to<br>
+      Topic : WFD/Speech/HexPhonemes/Command<br>
+    </font>
+    <div align="left"><font face="Arial">Examples<br>
+        Steven Quinn,&nbsp;&nbsp; Payload :
+        370D130123020B0308002E0C000B00<br>
+      </font></div>
+    <font face="Arial"> <font>System Ready, Payload : </font><font>37000C37000D000710000E07210C1400</font><br>
+      <font>Hello World,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Payload : </font><font>1B07072D0035032E01342D001500</font><br>
+      <br>
+      Topic to subscribe to, to receive confirmation the hex phonemes
+      have been spoken. <br>
+      Topic : WFD/Speech/HexPhonemes/Confirm<br>
+      Payload :&nbsp; 0 = Done, 1 = Busy, 5 = Error, 6 = Error, uneven
+      number of hex phonemes<br>
+      <br>
+      <big><b>Straight Phonemes Command</b></big><br>
+      Topic to publish Phonemes codes to. <br>
+      Topic : WFD/SpeechTH/1/Phonemes/Command<br>
+      Examples<br>
+      Steven Quinn,&nbsp;&nbsp; Payload :
+      SS,TT2,IY,PA2,VV,PA3,NN1,PA4,KK3,PA1,WW,IH,PA1,NN1,PA1<br>
+      <font>System Ready, Payload :
+        SS,PA1,IH,SS,PA1,TT2,PA1,EH,MM,PA1,RR1,EH,DD2,IH,EY,PA1<br>
+        Hello World,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Payload : </font><font><font>HH1,EH,EH,LL,PA1,OW,PA4,WW,PA2,ER2,LL,PA1,DD1,PA1</font><br>
+        <br>
+      </font>Topic to subscribe to, to receive confirmation the phonemes
+      have been spoken. <br>
+      Topic : WFD/SpeechTH/1/Phonemes/Confirm<br>
+      Payload : 0 = Done, 2 = Busy, 5 = Error, bad/unrecognised phoneme<br>
+      <br>
+      <big><b>Fixed Phrase</b><b> Phonemes Command</b></big><br>
+      Topic to publish Phonemes codes to, to speak a fixed phrase.
+      Payload is index number of phrase to speak. There are currently 3
+      fixed phrases.<br>
+      Topic : WFD/SpeechTH/1/FixedPhrase/Command<br>
+      Payload : 0 = Steven Quinn, 1 = System Ready, 2 = Hello World<br>
+      <br>
+      Topic to subscribe to, to receive confirmation the fixed phrases
+      have been spoken. <br>
+      Topic : WFD/SpeechTH/1/FixedPhrase/Confirm<br>
+      Payload : 0 = Done, 3 = Busy, 5 = Error, unrecognised phrase index<br>
+      <br>
+      <big><b>Direct Word</b><b> Phonemes Command</b></big><br>
+      <font color="#33cc00">This is ToDo, as it requires a MySQL
+        database connection</font><br>
+      Topic to publish to for the speaking of a single word. Word is
+      looked up in database<br>
+      Topic : WFD/SpeechTH/1/Word/Command<br>
+      Payload : Words...<br>
+      <br>
+      Topic to subscribe to, to receive confirmation the words have been
+      spoken. <br>
+      Topic : WFD/SpeechTH/1/Word/Confirm<b><br>
+      </b>Payload : 0 = Done, 4 = Busy, 5 = Error, unrecognised word,
+      not is database</font><br>
+    <br>
+    <br>
+    <br>
+  </body>
+</html>
