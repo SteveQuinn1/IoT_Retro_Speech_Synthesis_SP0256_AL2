@@ -758,7 +758,7 @@ void grabParm(char **ptrToParmString, String *recipientString);
 int fileWrite(File f, FileVarInstance *fviArray, int iTotalParametersToWrite);
 int fileRead(File f, FileVarInstance *fviArray, int iTotalParametersToRead);
 void readCalibrationValuesDHT22(void);
-void readCalibrationValuesMA2302(void);
+void readCalibrationValuesAM2302(void);
 void readNetworkSecurityParameters(void);
 void readConfigurationParameters(void);
 void connectMQTT(void);
